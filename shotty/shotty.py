@@ -1,4 +1,5 @@
 import boto3
+import botocore
 import click
 
 session2 = boto3.Session(region_name='eu-west-1',profile_name='shotty')
@@ -18,7 +19,7 @@ def filter_instances(project):
 def cli():
     """Shotty manages snapshots"""
 
-##############Volume Click Group and functions##########################
+##############Snapshots Click Group and functions##########################
 @cli.group('snapshots')
 def snapshots():
     """Commands for snapshots"""
@@ -123,7 +124,11 @@ def stop_instances(project):
 
     for i in instances:
         print("stopping {0}...".format(i.id))
-        i.stop()
+        try:
+            i.stop()
+        except botocore.exceptions.ClientError as e:
+            print("Could not stop {0} ".format(i.id) + str(e))
+            continue
     return
 ##################instances.command('stop')
 @instances.command('start')
@@ -135,7 +140,11 @@ def start_instances(project):
 
     for i in instances:
         print("starting {0}...".format(i.id))
-        i.start()
+        try:
+            i.start()
+        except botocore.exceptions.ClientError as e:
+            print("Could not start {0} ".format(i.id) + str(e))
+            continue
     return
 
 
